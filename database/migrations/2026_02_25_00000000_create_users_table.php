@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('role');
             $table->string('account_type');
-            $table->foreignId('school_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('referred_by_partner_id')->nullable()->constrained('partners')->nullOnDelete();
+            $table->unsignedBigInteger('school_id')->nullable();
+            $table->unsignedBigInteger('referred_by_partner_id')->nullable();
             $table->string('subscription_type')->nullable();
             $table->timestamp('subscription_expiry')->nullable();
             $table->rememberToken();

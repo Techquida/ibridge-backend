@@ -1,59 +1,189 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# iBridge Backend — Laravel API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+REST API powering the iBridge student exam-prep mobile app. Built with **Laravel 11** + **Sanctum** for token-based auth, role-based access control, and a Paystack integration for subscription billing.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requirements
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Tool | Version |
+|---|---|
+| PHP | ≥ 8.2 |
+| Composer | ≥ 2.x |
+| SQLite / MySQL | SQLite (default), MySQL 8 for production |
+| Node | ≥ 18 (for Vite assets — optional) |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Local Setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+# 1. Clone & install dependencies
+git clone <repo-url> ibridge-backend
+cd ibridge-backend
+composer install
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 2. Environment
+cp .env.example .env
+php artisan key:generate
 
-## Laravel Sponsors
+# 3. Database
+php artisan migrate --seed
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 4. Run dev server
+php artisan serve          # → http://127.0.0.1:8000
+```
 
-### Premium Partners
+> **Mobile testing:** The Expo app points to `http://127.0.0.1:8000/api`. If testing on a physical device, update `EXPO_PUBLIC_API_URL` in the frontend `.env` to your machine's local network IP and change `APP_URL` below accordingly.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## Environment Variables
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Copy `.env.example` to `.env` and fill in:
 
-## Code of Conduct
+```env
+APP_NAME=iBridge
+APP_ENV=local
+APP_URL=http://127.0.0.1:8000
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+DB_CONNECTION=sqlite          # or mysql for production
 
-## Security Vulnerabilities
+# Paystack (subscription billing)
+PAYSTACK_SECRET_KEY=sk_test_...
+PAYSTACK_PUBLIC_KEY=pk_test_...
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## API Reference
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+All endpoints are prefixed with `/api`. Authenticated routes require a `Bearer` token obtained from `/login` or `/register`.
+
+### Auth
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `POST` | `/register` | Public | Register a new student account |
+| `POST` | `/login` | Public | Login, returns `user` + `token` |
+| `POST` | `/logout` | ✓ | Revoke current token |
+| `GET` | `/profile` | ✓ | Get authenticated user profile |
+| `PATCH` | `/profile` | ✓ | Update `name` or `exam_board` |
+
+#### Register payload
+```json
+{
+  "name": "Chukwuemeka Obi",
+  "email": "emeka@example.com",
+  "password": "secret1234",
+  "school_code": "SCH-001",     // optional
+  "referral_code": "TUTOR123"   // optional
+}
+```
+
+### Student Routes (`role: student` required)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/sessions` | List sessions (filterable by `?subject=` `&mode=`) |
+| `POST` | `/sessions` | Save a completed exam session |
+| `GET` | `/sessions/{id}` | Get a single session |
+| `GET` | `/analytics` | Performance summary, subject breakdown, XP & level |
+| `GET` | `/leaderboard` | Top students by XP (`?board=WAEC\|JAMB`) |
+| `POST` | `/subscription/verify` | Verify a Paystack payment + extend subscription |
+
+#### Save session payload
+```json
+{
+  "subject": "Mathematics",
+  "mode": "deep",
+  "score": 38,
+  "accuracy": 76,
+  "time_used": 1842,
+  "total_questions": 50,
+  "exam_board": "WAEC",
+  "weakest_topic": "Algebra",
+  "topic_breakdown": { ... },
+  "time_per_question": [ ... ],
+  "dropped_before_submit": false
+}
+```
+
+#### Analytics response shape
+```json
+{
+  "data": {
+    "total_sessions": 12,
+    "avg_accuracy": 74,
+    "best_score": 96,
+    "weakest_topic": "Algebra",
+    "xp": 840,
+    "level": 5,
+    "xp_to_next_level": 160,
+    "streak_days": 4,
+    "best_streak": 9,
+    "per_subject": [ ... ],
+    "mode_breakdown": { "light": 5, "deep": 4, "real": 3 },
+    "recent_sessions": [ ... ]
+  }
+}
+```
+
+### Partner Routes (`role: partner`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/partner/dashboard` | Referral stats & commission summary |
+
+### School Admin Routes (`role: school_admin`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/school/students` | List school's enrolled students |
+| `GET` | `/school/students/active-count` | Count of active students |
+| `GET` | `/school/summary` | School-level performance summary |
+
+---
+
+## Architecture
+
+```
+app/
+├── Http/
+│   ├── Controllers/Api/   ← Thin controllers, delegate to services
+│   ├── Requests/          ← Form request validation
+│   └── Resources/         ← API response transformers (UserResource, SessionResource)
+├── Services/
+│   ├── AuthService.php        ← Register, login, profile update
+│   ├── SessionService.php     ← Store session, award XP + streak
+│   ├── AnalyticsService.php   ← Aggregate stats, level calculation
+│   ├── LeaderboardService.php ← Top-N students by XP, name masking
+│   └── SubscriptionService.php ← Paystack verification, expiry extension
+└── Models/                ← User, Session, School, Partner …
+```
+
+### XP & Levelling (inside `SessionService`)
+
+- **Base XP** = accuracy score
+- **Mode multiplier:** `real × 1.5`, `deep × 1.2`, `light × 1.0`
+- **Streak logic:** consecutive calendar days with at least one session
+- Level thresholds: `100 XP × level²`
+
+---
+
+## Running Tests
+
+```bash
+php artisan test
+```
+
+---
+
+## Deployment Checklist
+
+- [ ] Set `APP_ENV=production` and `APP_DEBUG=false`
+- [ ] Use MySQL — update `DB_*` vars
+- [ ] Set real Paystack keys (`PAYSTACK_SECRET_KEY`)
+- [ ] Set `APP_URL` to your production domain
+- [ ] Run `php artisan migrate --force`
+- [ ] Configure CORS (`config/cors.php`) to whitelist app domains

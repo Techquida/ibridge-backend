@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('commissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('partner_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->unsignedBigInteger('partner_id');
+            $table->unsignedBigInteger('user_id');
             $table->decimal('amount', 10, 2);
             $table->integer('month_number');
             $table->boolean('is_paid')->default(false);
