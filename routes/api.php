@@ -11,6 +11,10 @@ use App\Http\Controllers\Api\LeaderboardController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Enums\RoleEnum;
 
+use App\Http\Controllers\Api\QuestionController;
+use App\Http\Controllers\Api\QuestionCheckController;
+use App\Http\Controllers\Api\SubjectController;
+
 // ─── Public routes ────────────────────────────────────────────────────────────
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
@@ -25,7 +29,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // ── Student routes ────────────────────────────────────────────────────────
     Route::middleware('role:' . RoleEnum::STUDENT->value)->group(function () {
 
-        // Sessions
+        // Questions (randomized per request — no correct answers in response)
+        Route::get('/questions', [QuestionController::class, 'index']);
+
+        // Per-question answer check (Light Mode instant feedback)
+        Route::post('/questions/{id}/check', [QuestionCheckController::class, 'check']);
+
+        // Subjects (distinct active subjects from questions table)
+        Route::get('/subjects', [SubjectController::class, 'index']);
+
+        // Sessions (submit answers → server grades → returns GradedSessionResource)
         Route::get('/sessions',       [SessionController::class, 'index']);
         Route::post('/sessions',      [SessionController::class, 'store']);
         Route::get('/sessions/{id}',  [SessionController::class, 'show']);

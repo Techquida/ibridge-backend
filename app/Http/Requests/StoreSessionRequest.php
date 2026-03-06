@@ -15,18 +15,30 @@ class StoreSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // Session metadata
             'subject'               => ['required', 'string', 'max:255'],
             'mode'                  => ['required', 'string', 'in:' . implode(',', SessionModeEnum::toArray())],
-            'score'                 => ['required', 'integer', 'min:0'],
-            'accuracy'              => ['required', 'numeric', 'min:0', 'max:100'],
             'time_used'             => ['required', 'integer', 'min:0'],
-            'total_questions'       => ['required', 'integer', 'min:1'],
             'exam_board'            => ['nullable', 'string', 'in:WAEC,JAMB'],
-            'weakest_topic'         => ['nullable', 'string', 'max:255'],
-            'topic_breakdown'       => ['nullable', 'array'],
             'time_per_question'     => ['nullable', 'array'],
             'time_per_question.*'   => ['nullable', 'integer', 'min:0'],
             'dropped_before_submit' => ['nullable', 'boolean'],
+
+            // Question grading inputs (mutually exclusive paths)
+            //
+            //  Path A — server grading (preferred, secure):
+            //    Send question_ids + answers → backend grades
+            'question_ids'          => ['nullable', 'array'],
+            'question_ids.*'        => ['nullable', 'integer', 'exists:questions,id'],
+            'answers'               => ['nullable', 'array'],
+            'answers.*'             => ['nullable', 'integer', 'min:0', 'max:3'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'question_ids.*.exists' => 'One or more question IDs are invalid.',
         ];
     }
 }

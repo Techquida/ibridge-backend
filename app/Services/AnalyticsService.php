@@ -44,13 +44,20 @@ class AnalyticsService
         // Mode breakdown
         $modeBreakdown = $sessions->groupBy(fn($s) => $s->mode->value ?? $s->mode)->map->count();
 
-        // Weakest topic overall (most frequent)
+        // Weakest topic overall (most frequent weakest_topic across sessions)
         $weakestTopicOverall = $sessions->whereNotNull('weakest_topic')
             ->groupBy('weakest_topic')
             ->map->count()
             ->sortDesc()
             ->keys()
             ->first();
+
+        // Weakest subject (lowest avg_accuracy — only subjects with 2+ sessions to be meaningful)
+        $weakestSubjectEntry = $perSubject
+            ->filter(fn($s) => $s['session_count'] >= 2)
+            ->sortBy('avg_accuracy')
+            ->first();
+        $weakestSubject = $weakestSubjectEntry['subject'] ?? $perSubject->sortBy('avg_accuracy')->first()['subject'] ?? null;
 
         // Recent sessions (last 10)
         $recentSessions = $sessions->take(10)->map(fn($s) => [
@@ -73,6 +80,7 @@ class AnalyticsService
             'avg_accuracy'     => $avgAccuracy,
             'best_score'       => $bestScore,
             'weakest_topic'    => $weakestTopicOverall,
+            'weakest_subject'  => $weakestSubject,
             'xp'               => $xp,
             'level'            => $level,
             'xp_to_next_level' => $xpToNext,

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSessionRequest;
+use App\Http\Resources\GradedSessionResource;
 use App\Http\Resources\SessionResource;
 use App\Models\Session;
+use App\Services\QuestionService;
 use App\Services\SessionService;
 use App\Services\SubscriptionService;
 use App\Traits\ResponseTrait;
@@ -16,10 +18,19 @@ class SessionController extends Controller
 {
     use ResponseTrait;
 
+    private SubscriptionService $subscriptionService;
+    private SessionService $sessionService;
+    private QuestionService $questionService;
+
     public function __construct(
-        private readonly SubscriptionService $subscriptionService,
-        private readonly SessionService $sessionService,
-    ) {}
+        SubscriptionService $subscriptionService,
+        SessionService $sessionService,
+        QuestionService $questionService,
+    ) {
+        $this->subscriptionService = $subscriptionService;
+        $this->sessionService      = $sessionService;
+        $this->questionService     = $questionService;
+    }
 
     /**
      * GET /sessions — paginated list with optional filters.
@@ -29,12 +40,9 @@ class SessionController extends Controller
         $query = Session::where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc');
 
-        // Optional filter by subject
         if ($request->filled('subject')) {
             $query->where('subject', $request->subject);
         }
-
-        // Optional filter by mode
         if ($request->filled('mode')) {
             $query->where('mode', $request->mode);
         }
@@ -43,12 +51,15 @@ class SessionController extends Controller
 
         return $this->paginatedResponse(
             SessionResource::collection($sessions),
-            'Sessions retrieved successfully'
+            'Sessions retrieved successfully',
         );
     }
 
     /**
-     * POST /sessions — store a completed session.
+     * POST /sessions — grade answers server-side, persist session, return enriched result.
+     *
+     * The client sends question_ids + answers. The backend grades, awards XP/streak,
+     * and returns GradedSessionResource (which includes explanations — safe post-submission).
      */
     public function store(StoreSessionRequest $request): JsonResponse
     {
@@ -56,9 +67,31 @@ class SessionController extends Controller
             return $this->forbiddenResponse('Your subscription is inactive. Please renew to log sessions.');
         }
 
-        $session = $this->sessionService->store($request->user()->id, $request->validated());
+        $data          = $request->validated();
+        $questionIds   = $data['question_ids'] ?? [];
+        $answers       = $data['answers'] ?? [];
 
-        return $this->createdResponse(new SessionResource($session), 'Session saved successfully');
+        // ── Server-side grading ───────────────────────────────────────────────
+        $graded = $this->questionService->grade($questionIds, $answers);
+
+        // Merge graded results into the data array for SessionService
+        $sessionData = array_merge($data, [
+            'score'           => $graded['score'],
+            'accuracy'        => $graded['accuracy'],
+            'total_questions' => count($questionIds),
+            'weakest_topic'   => $graded['weakestTopic'],
+            'topic_breakdown' => $graded['topicBreakdown'],
+        ]);
+
+        $session = $this->sessionService->store($request->user()->id, $sessionData);
+
+        // Attach per-question review data (revealed only in this response)
+        $session->review = $graded['review'];
+
+        return $this->createdResponse(
+            new GradedSessionResource($session),
+            'Session graded and saved successfully',
+        );
     }
 
     /**

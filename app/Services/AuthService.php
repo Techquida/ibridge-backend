@@ -36,20 +36,20 @@ class AuthService
             }
 
             $user = User::create([
-                'name'                   => $data['name'],
-                'email'                  => $data['email'],
-                'password'               => Hash::make($data['password']),
-                'role'                   => RoleEnum::STUDENT,
-                'account_type'           => $accountType,
-                'exam_board'             => $data['exam_board'] ?? null,
-                'school_id'              => $schoolId,
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'role' => RoleEnum::STUDENT,
+                'account_type' => $accountType,
+                'exam_board' => $data['exam_board'] ?? null,
+                'school_id' => $schoolId,
                 'referred_by_partner_id' => $partnerId,
-                'subscription_type'      => $subscriptionType,
-                'subscription_expiry'    => $subscriptionExpiry,
+                'subscription_type' => $subscriptionType,
+                'subscription_expiry' => $subscriptionExpiry,
             ]);
 
             return [
-                'user'  => $user,
+                'user' => $user,
                 'token' => $user->createToken('auth_token')->plainTextToken,
             ];
         });
@@ -58,7 +58,7 @@ class AuthService
     public function updateProfile(User $user, array $data): User
     {
         $user->fill(array_filter([
-            'name'       => $data['name'] ?? null,
+            'name' => $data['name'] ?? null,
             'exam_board' => $data['exam_board'] ?? null,
         ], fn($v) => $v !== null));
 

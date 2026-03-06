@@ -14,7 +14,12 @@ class AnalyticsController extends Controller
 {
     use ResponseTrait;
 
-    public function __construct(private readonly AnalyticsService $analyticsService) {}
+    private AnalyticsService $analyticsService;
+
+    public function __construct(AnalyticsService $analyticsService)
+    {
+        $this->analyticsService = $analyticsService;
+    }
 
     public function index(Request $request): JsonResponse
     {
