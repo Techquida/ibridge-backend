@@ -2,14 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\Partner;
-use App\Models\School;
-use App\Models\User;
 use App\Enums\AccountTypeEnum;
 use App\Enums\RoleEnum;
 use App\Enums\SubscriptionTypeEnum;
+use App\Models\Partner;
+use App\Models\School;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class AuthService
 {
@@ -22,7 +21,7 @@ class AuthService
             $subscriptionExpiry = null;
             $subscriptionType = null;
 
-            if (!empty($data['school_code'])) {
+            if (! empty($data['school_code'])) {
                 $school = School::where('unique_code', $data['school_code'])->firstOrFail();
                 $schoolId = $school->id;
                 $accountType = AccountTypeEnum::SCHOOL;
@@ -31,7 +30,7 @@ class AuthService
                 $subscriptionType = SubscriptionTypeEnum::SCHOOL_STANDARD->value;
             }
 
-            if (!empty($data['referral_code'])) {
+            if (! empty($data['referral_code'])) {
                 $partnerId = Partner::where('referral_code', $data['referral_code'])->value('id');
             }
 
@@ -60,7 +59,7 @@ class AuthService
         $user->fill(array_filter([
             'name' => $data['name'] ?? null,
             'exam_board' => $data['exam_board'] ?? null,
-        ], fn($v) => $v !== null));
+        ], fn ($v) => $v !== null));
 
         $user->save();
 

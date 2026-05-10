@@ -29,6 +29,7 @@ class SubscriptionService
         // School-type account
         if ($user->account_type === AccountTypeEnum::SCHOOL) {
             $school = $user->school;
+
             return $school
                 && $school->subscription_expiry
                 && $school->subscription_expiry->isFuture();

@@ -2,10 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Traits\ResponseTrait;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Traits\ResponseTrait;
 
 class RoleMiddleware
 {
@@ -20,11 +20,11 @@ class RoleMiddleware
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return $this->errorResponse('Unauthenticated.', 401);
         }
 
-        if (!in_array($user->role->value, $roles)) {
+        if (! in_array($user->role->value, $roles)) {
             return $this->errorResponse('Forbidden. You do not have the required role to access this resource.', 403);
         }
 

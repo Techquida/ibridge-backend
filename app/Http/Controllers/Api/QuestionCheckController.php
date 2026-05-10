@@ -29,13 +29,13 @@ class QuestionCheckController extends Controller
         $question = Question::where('is_active', true)->findOrFail($id);
 
         $submittedAnswer = $request->integer('answer');
-        $correctAnswer   = $question->correct_answer;
-        $isCorrect       = $submittedAnswer === $correctAnswer;
+        $correctAnswer = $question->correct_answer;
+        $isCorrect = $submittedAnswer === $correctAnswer;
 
         return $this->successResponse([
-            'is_correct'     => $isCorrect,
+            'is_correct' => $isCorrect,
             'correct_answer' => $correctAnswer,
-            'explanation'    => $question->explanation,
+            'explanation' => $question->explanation,
         ], 'Answer checked');
     }
 }

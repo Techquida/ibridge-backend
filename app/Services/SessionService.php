@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\SessionModeEnum;
 use App\Models\Session;
 use App\Models\User;
-use App\Enums\SessionModeEnum;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -15,8 +15,8 @@ class SessionService
      */
     private const XP_MULTIPLIERS = [
         'light' => 1.0,
-        'deep'  => 1.2,
-        'real'  => 1.5,
+        'deep' => 1.2,
+        'real' => 1.5,
     ];
 
     /**
@@ -29,20 +29,20 @@ class SessionService
             $mode = $data['mode'];
 
             $session = Session::create([
-                'user_id'               => $userId,
-                'subject'               => $data['subject'],
-                'mode'                  => SessionModeEnum::from($mode),
-                'score'                 => $data['score'],
-                'accuracy'              => $data['accuracy'],
-                'time_used'             => $data['time_used'],
-                'total_questions'       => $data['total_questions'],
-                'exam_board'            => $data['exam_board'] ?? null,
-                'weakest_topic'         => $data['weakest_topic'] ?? null,
-                'topic_breakdown'       => $data['topic_breakdown'] ?? null,
-                'time_per_question'     => $data['time_per_question'] ?? null,
+                'user_id' => $userId,
+                'subject' => $data['subject'],
+                'mode' => SessionModeEnum::from($mode),
+                'score' => $data['score'],
+                'accuracy' => $data['accuracy'],
+                'time_used' => $data['time_used'],
+                'total_questions' => $data['total_questions'],
+                'exam_board' => $data['exam_board'] ?? null,
+                'weakest_topic' => $data['weakest_topic'] ?? null,
+                'topic_breakdown' => $data['topic_breakdown'] ?? null,
+                'time_per_question' => $data['time_per_question'] ?? null,
                 'dropped_before_submit' => $data['dropped_before_submit'] ?? false,
-                'answers'               => $data['answers'] ?? null,
-                'question_ids'          => $data['question_ids'] ?? null,
+                'answers' => $data['answers'] ?? null,
+                'question_ids' => $data['question_ids'] ?? null,
             ]);
 
             // Award XP and update streak
@@ -50,9 +50,9 @@ class SessionService
 
             // Attach virtual fields for GradedSessionResource
             $user = User::find($userId);
-            $session->xp_earned  = $xpEarned;
+            $session->xp_earned = $xpEarned;
             $session->streak_days = $user?->streak_days;
-            $session->level       = $this->calculateLevel($user?->xp ?? 0);
+            $session->level = $this->calculateLevel($user?->xp ?? 0);
 
             return $session;
         });
@@ -64,12 +64,14 @@ class SessionService
     public function awardXpAndStreak(int $userId, float $accuracy, string $mode): int
     {
         $user = User::lockForUpdate()->find($userId);
-        if (!$user) return 0;
+        if (! $user) {
+            return 0;
+        }
 
         $multiplier = self::XP_MULTIPLIERS[$mode] ?? 1.0;
-        $xpEarned   = (int) round($accuracy * $multiplier);
+        $xpEarned = (int) round($accuracy * $multiplier);
 
-        $today        = Carbon::today()->toDateString();
+        $today = Carbon::today()->toDateString();
         $lastActivity = $user->last_activity_date;
 
         if ($lastActivity === null) {
@@ -83,9 +85,9 @@ class SessionService
         }
 
         $user->update([
-            'xp'                 => $user->xp + $xpEarned,
-            'streak_days'        => $newStreak,
-            'best_streak'        => max($user->best_streak, $newStreak),
+            'xp' => $user->xp + $xpEarned,
+            'streak_days' => $newStreak,
+            'best_streak' => max($user->best_streak, $newStreak),
             'last_activity_date' => $today,
         ]);
 

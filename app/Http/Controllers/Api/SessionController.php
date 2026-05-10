@@ -19,7 +19,9 @@ class SessionController extends Controller
     use ResponseTrait;
 
     private SubscriptionService $subscriptionService;
+
     private SessionService $sessionService;
+
     private QuestionService $questionService;
 
     public function __construct(
@@ -28,8 +30,8 @@ class SessionController extends Controller
         QuestionService $questionService,
     ) {
         $this->subscriptionService = $subscriptionService;
-        $this->sessionService      = $sessionService;
-        $this->questionService     = $questionService;
+        $this->sessionService = $sessionService;
+        $this->questionService = $questionService;
     }
 
     /**
@@ -63,23 +65,23 @@ class SessionController extends Controller
      */
     public function store(StoreSessionRequest $request): JsonResponse
     {
-        if (!$this->subscriptionService->isUserActive($request->user())) {
+        if (! $this->subscriptionService->isUserActive($request->user())) {
             return $this->forbiddenResponse('Your subscription is inactive. Please renew to log sessions.');
         }
 
-        $data          = $request->validated();
-        $questionIds   = $data['question_ids'] ?? [];
-        $answers       = $data['answers'] ?? [];
+        $data = $request->validated();
+        $questionIds = $data['question_ids'] ?? [];
+        $answers = $data['answers'] ?? [];
 
         // ── Server-side grading ───────────────────────────────────────────────
         $graded = $this->questionService->grade($questionIds, $answers);
 
         // Merge graded results into the data array for SessionService
         $sessionData = array_merge($data, [
-            'score'           => $graded['score'],
-            'accuracy'        => $graded['accuracy'],
+            'score' => $graded['score'],
+            'accuracy' => $graded['accuracy'],
             'total_questions' => count($questionIds),
-            'weakest_topic'   => $graded['weakestTopic'],
+            'weakest_topic' => $graded['weakestTopic'],
             'topic_breakdown' => $graded['topicBreakdown'],
         ]);
 

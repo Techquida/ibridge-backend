@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use App\Models\School;
 use App\Models\Partner;
+use App\Models\School;
+use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest
 {
@@ -32,18 +32,21 @@ class RegisterRequest extends FormRequest
             if ($this->filled('school_code')) {
                 $school = School::where('unique_code', $this->school_code)->first();
 
-                if (!$school) {
+                if (! $school) {
                     $validator->errors()->add('school_code', 'The provided school code is invalid.');
+
                     return;
                 }
 
                 if ($school->is_suspended) {
                     $validator->errors()->add('school_code', 'This school account has been suspended. Contact your school admin.');
+
                     return;
                 }
 
                 if ($school->subscription_expiry && $school->subscription_expiry->isPast()) {
                     $validator->errors()->add('school_code', 'This school\'s subscription has expired. Contact your school admin to renew.');
+
                     return;
                 }
             }
@@ -52,13 +55,15 @@ class RegisterRequest extends FormRequest
             if ($this->filled('referral_code')) {
                 $partner = Partner::where('referral_code', $this->referral_code)->first();
 
-                if (!$partner) {
+                if (! $partner) {
                     $validator->errors()->add('referral_code', 'The provided referral code is invalid.');
+
                     return;
                 }
 
                 if ($partner->is_suspended) {
                     $validator->errors()->add('referral_code', 'This referral code is no longer active.');
+
                     return;
                 }
             }
@@ -69,7 +74,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'exam_board.required' => 'Please select your exam board (WAEC or JAMB).',
-            'exam_board.in'       => 'Exam board must be WAEC or JAMB.',
+            'exam_board.in' => 'Exam board must be WAEC or JAMB.',
         ];
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\SessionModeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Enums\SessionModeEnum;
 
 class Session extends Model
 {
@@ -26,9 +26,9 @@ class Session extends Model
     ];
 
     protected $casts = [
-        'mode'                  => SessionModeEnum::class,
-        'topic_breakdown'       => 'array',
-        'time_per_question'     => 'array',
+        'mode' => SessionModeEnum::class,
+        'topic_breakdown' => 'array',
+        'time_per_question' => 'array',
         'dropped_before_submit' => 'boolean',
     ];
 

@@ -9,5 +9,8 @@ class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
-    protected function getHeaderActions(): array { return []; }
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
 }

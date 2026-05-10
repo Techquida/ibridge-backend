@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\StudentAnalyticsResource;
-use App\Models\Session;
 use App\Services\AnalyticsService;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\JsonResponse;

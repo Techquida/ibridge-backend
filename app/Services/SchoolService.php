@@ -13,7 +13,7 @@ class SchoolService
     public function resolveSchoolForUser(User $user): School
     {
         return School::findOr($user->school_id,
-            fn() => throw new ModelNotFoundException('School profile not found.')
+            fn () => throw new ModelNotFoundException('School profile not found.')
         );
     }
 
@@ -22,7 +22,7 @@ class SchoolService
         $users = $school->users()->get();
 
         $activeCount = $users->filter(
-            fn(User $u) => $this->subscriptionService->isUserActive($u)
+            fn (User $u) => $this->subscriptionService->isUserActive($u)
         )->count();
 
         return [

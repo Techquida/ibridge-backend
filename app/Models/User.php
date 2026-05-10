@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\AccountTypeEnum;
+use App\Enums\RoleEnum;
+use App\Enums\SubscriptionTypeEnum;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,9 +12,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Enums\RoleEnum;
-use App\Enums\AccountTypeEnum;
-use App\Enums\SubscriptionTypeEnum;
 
 class User extends Authenticatable implements FilamentUser
 {

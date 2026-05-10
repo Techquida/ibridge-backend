@@ -15,13 +15,14 @@ class QuestionController extends Controller
     use ResponseTrait;
 
     private QuestionService $questionService;
+
     private SubscriptionService $subscriptionService;
 
     public function __construct(
         QuestionService $questionService,
         SubscriptionService $subscriptionService,
     ) {
-        $this->questionService     = $questionService;
+        $this->questionService = $questionService;
         $this->subscriptionService = $subscriptionService;
     }
 
@@ -40,11 +41,11 @@ class QuestionController extends Controller
     {
         $request->validate([
             'subject' => ['required', 'string'],
-            'board'   => ['required', 'string', 'in:WAEC,JAMB'],
-            'mode'    => ['required', 'string', 'in:light,deep,real'],
+            'board' => ['required', 'string', 'in:WAEC,JAMB'],
+            'mode' => ['required', 'string', 'in:light,deep,real'],
         ]);
 
-        if (!$this->subscriptionService->isUserActive($request->user())) {
+        if (! $this->subscriptionService->isUserActive($request->user())) {
             return $this->forbiddenResponse('Your subscription is inactive.');
         }
 

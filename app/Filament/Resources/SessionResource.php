@@ -5,16 +5,19 @@ namespace App\Filament\Resources;
 use App\Enums\SessionModeEnum;
 use App\Filament\Resources\SessionResource\Pages;
 use App\Models\Session;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Forms\Form;
 
 class SessionResource extends Resource
 {
     protected static ?string $model = Session::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
+
     protected static ?string $navigationGroup = 'Activity';
+
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
@@ -36,9 +39,9 @@ class SessionResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('subject')
-                    ->options(fn() => Session::query()->distinct()->pluck('subject', 'subject')),
+                    ->options(fn () => Session::query()->distinct()->pluck('subject', 'subject')),
                 Tables\Filters\SelectFilter::make('mode')
-                    ->options(collect(SessionModeEnum::cases())->mapWithKeys(fn($e) => [$e->value => $e->value])),
+                    ->options(collect(SessionModeEnum::cases())->mapWithKeys(fn ($e) => [$e->value => $e->value])),
                 Tables\Filters\SelectFilter::make('user')
                     ->relationship('user', 'name')
                     ->searchable()
@@ -48,9 +51,15 @@ class SessionResource extends Resource
             ->bulkActions([]);
     }
 
-    public static function canCreate(): bool { return false; }
+    public static function canCreate(): bool
+    {
+        return false;
+    }
 
-    public static function getRelations(): array { return []; }
+    public static function getRelations(): array
+    {
+        return [];
+    }
 
     public static function getPages(): array
     {

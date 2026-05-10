@@ -21,9 +21,9 @@ class Question extends Model
     ];
 
     protected $casts = [
-        'options'        => 'array',
+        'options' => 'array',
         'correct_answer' => 'integer',
-        'is_active'      => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     // ── Query Scopes ──────────────────────────────────────────────────────────

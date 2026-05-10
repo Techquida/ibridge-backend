@@ -9,5 +9,8 @@ class EditPartner extends EditRecord
 {
     protected static string $resource = PartnerResource::class;
 
-    protected function getHeaderActions(): array { return []; }
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
 }

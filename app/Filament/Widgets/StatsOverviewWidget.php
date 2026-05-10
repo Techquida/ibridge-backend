@@ -58,11 +58,11 @@ class StatsOverviewWidget extends BaseWidget
                 ->color('gray')
                 ->icon('heroicon-o-book-open'),
 
-            Stat::make('Commissions Generated', '₦' . number_format($totalCommissions, 2))
+            Stat::make('Commissions Generated', '₦'.number_format($totalCommissions, 2))
                 ->color('success')
                 ->icon('heroicon-o-currency-dollar'),
 
-            Stat::make('Unpaid Commissions', '₦' . number_format($unpaidCommissions, 2))
+            Stat::make('Unpaid Commissions', '₦'.number_format($unpaidCommissions, 2))
                 ->description('Awaiting payment')
                 ->color($unpaidCommissions > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-exclamation-circle'),

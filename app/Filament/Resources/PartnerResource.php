@@ -13,8 +13,11 @@ use Filament\Tables\Table;
 class PartnerResource extends Resource
 {
     protected static ?string $model = Partner::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+
     protected static ?string $navigationGroup = 'User Management';
+
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
@@ -55,11 +58,11 @@ class PartnerResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\Action::make('toggle_active')
-                    ->label(fn(Partner $record) => $record->is_active ? 'Deactivate' : 'Activate')
-                    ->icon(fn(Partner $record) => $record->is_active ? 'heroicon-o-pause' : 'heroicon-o-play')
-                    ->color(fn(Partner $record) => $record->is_active ? 'danger' : 'success')
+                    ->label(fn (Partner $record) => $record->is_active ? 'Deactivate' : 'Activate')
+                    ->icon(fn (Partner $record) => $record->is_active ? 'heroicon-o-pause' : 'heroicon-o-play')
+                    ->color(fn (Partner $record) => $record->is_active ? 'danger' : 'success')
                     ->requiresConfirmation()
-                    ->action(fn(Partner $record) => $record->update(['is_active' => !$record->is_active])),
+                    ->action(fn (Partner $record) => $record->update(['is_active' => ! $record->is_active])),
             ])
             ->bulkActions([]);
     }

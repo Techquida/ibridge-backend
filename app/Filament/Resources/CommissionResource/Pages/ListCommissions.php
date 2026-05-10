@@ -9,5 +9,8 @@ class ListCommissions extends ListRecords
 {
     protected static string $resource = CommissionResource::class;
 
-    protected function getHeaderActions(): array { return []; }
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
 }

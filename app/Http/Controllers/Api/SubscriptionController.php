@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\SubscriptionTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VerifySubscriptionRequest;
-use App\Models\User;
-use App\Enums\SubscriptionTypeEnum;
 use App\Http\Resources\UserResource;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -28,30 +26,32 @@ class SubscriptionController extends Controller
     public function verify(VerifySubscriptionRequest $request): JsonResponse
     {
         $reference = $request->input('reference');
-        $plan      = $request->input('plan'); // 'monthly' | 'annual'
+        $plan = $request->input('plan'); // 'monthly' | 'annual'
 
         // ── Server-side Paystack verification ────────────────────────────────
-        $secret   = config('services.paystack.secret');
+        $secret = config('services.paystack.secret');
         $response = Http::withToken($secret)
-            ->get(self::PAYSTACK_VERIFY_URL . $reference);
+            ->get(self::PAYSTACK_VERIFY_URL.$reference);
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             Log::warning('Paystack verification HTTP error', [
                 'reference' => $reference,
-                'status'    => $response->status(),
+                'status' => $response->status(),
             ]);
+
             return $this->serverErrorResponse('Payment verification service unavailable. Please try again.');
         }
 
-        $data   = $response->json('data');
+        $data = $response->json('data');
         $status = $data['status'] ?? null;
 
         if ($status !== 'success') {
             Log::warning('Paystack payment not successful', [
                 'reference' => $reference,
-                'status'    => $status,
+                'status' => $status,
             ]);
-            return $this->failureResponse('Payment was not successful. Status: ' . $status);
+
+            return $this->failureResponse('Payment was not successful. Status: '.$status);
         }
 
         // Prevent double-use: check reference not already applied
@@ -69,21 +69,21 @@ class SubscriptionController extends Controller
         $newExpiry = $base->addDays($daysToAdd);
 
         $user->update([
-            'subscription_type'   => SubscriptionTypeEnum::INDIVIDUAL_ACTIVE->value,
+            'subscription_type' => SubscriptionTypeEnum::INDIVIDUAL_ACTIVE->value,
             'subscription_expiry' => $newExpiry,
         ]);
 
         Log::info('Subscription renewed', [
-            'user_id'   => $user->id,
-            'plan'      => $plan,
+            'user_id' => $user->id,
+            'plan' => $plan,
             'reference' => $reference,
-            'expiry'    => $newExpiry->toDateString(),
+            'expiry' => $newExpiry->toDateString(),
         ]);
 
         return $this->successResponse([
-            'user'       => new UserResource($user->fresh()),
-            'expiry'     => $newExpiry->toISOString(),
-            'plan'       => $plan,
-        ], 'Subscription renewed successfully. Expires ' . $newExpiry->toFormattedDateString());
+            'user' => new UserResource($user->fresh()),
+            'expiry' => $newExpiry->toISOString(),
+            'plan' => $plan,
+        ], 'Subscription renewed successfully. Expires '.$newExpiry->toFormattedDateString());
     }
 }

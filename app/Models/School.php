@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\SubscriptionTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Enums\SubscriptionTypeEnum;
 
 class School extends Model
 {

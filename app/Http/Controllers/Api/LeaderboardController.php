@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Enums\RoleEnum;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,12 +32,12 @@ class LeaderboardController extends Controller
 
         $entries = $top->map(function ($user, $index) use ($authUser) {
             return [
-                'rank'       => $index + 1,
-                'name'       => $this->maskName($user->name),
-                'xp'         => $user->xp,
-                'streak'     => $user->streak_days,
+                'rank' => $index + 1,
+                'name' => $this->maskName($user->name),
+                'xp' => $user->xp,
+                'streak' => $user->streak_days,
                 'exam_board' => $user->exam_board,
-                'is_me'      => $user->id === $authUser->id,
+                'is_me' => $user->id === $authUser->id,
             ];
         })->values();
 
@@ -45,20 +45,20 @@ class LeaderboardController extends Controller
         $userInTop = $entries->contains('is_me', true);
         $myRank = null;
 
-        if (!$userInTop) {
+        if (! $userInTop) {
             $myRank = [
-                'rank'       => $this->getUserRank($authUser, $request->board ?? null),
-                'name'       => $this->maskName($authUser->name),
-                'xp'         => $authUser->xp,
-                'streak'     => $authUser->streak_days,
+                'rank' => $this->getUserRank($authUser, $request->board ?? null),
+                'name' => $this->maskName($authUser->name),
+                'xp' => $authUser->xp,
+                'streak' => $authUser->streak_days,
                 'exam_board' => $authUser->exam_board,
-                'is_me'      => true,
+                'is_me' => true,
             ];
         }
 
         return $this->successResponse([
-            'entries'  => $entries,
-            'my_rank'  => $myRank,
+            'entries' => $entries,
+            'my_rank' => $myRank,
         ], 'Leaderboard retrieved successfully');
     }
 
@@ -69,7 +69,8 @@ class LeaderboardController extends Controller
             return $parts[0];
         }
         $lastName = end($parts);
-        return $parts[0] . ' ' . strtoupper(substr($lastName, 0, 1)) . '.';
+
+        return $parts[0].' '.strtoupper(substr($lastName, 0, 1)).'.';
     }
 
     private function getUserRank(User $user, ?string $board): int

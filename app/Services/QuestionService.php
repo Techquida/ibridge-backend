@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Question;
 use App\Models\Session;
-use App\Models\User;
 use Illuminate\Support\Collection;
 
 class QuestionService
@@ -14,8 +13,8 @@ class QuestionService
      */
     private const MODE_COUNTS = [
         'light' => 20,
-        'deep'  => 40,
-        'real'  => 60,
+        'deep' => 40,
+        'real' => 60,
     ];
 
     /**
@@ -24,8 +23,8 @@ class QuestionService
      */
     private const DIFFICULTY_SPLIT = [
         'light' => ['easy' => 0.50, 'medium' => 0.40, 'hard' => 0.10],
-        'deep'  => ['easy' => 0.30, 'medium' => 0.45, 'hard' => 0.25],
-        'real'  => ['easy' => 0.25, 'medium' => 0.45, 'hard' => 0.30],
+        'deep' => ['easy' => 0.30, 'medium' => 0.45, 'hard' => 0.25],
+        'real' => ['easy' => 0.25, 'medium' => 0.45, 'hard' => 0.30],
     ];
 
     /**
@@ -77,8 +76,8 @@ class QuestionService
     /**
      * Grade a submitted session and return enriched result data.
      *
-     * @param  array<int>       $questionIds  Ordered IDs from the session
-     * @param  array<int|null>  $answers      Submitted answer indices (null = unanswered)
+     * @param  array<int>  $questionIds  Ordered IDs from the session
+     * @param  array<int|null>  $answers  Submitted answer indices (null = unanswered)
      * @return array{score: int, accuracy: int, topic_breakdown: array, weakest_topic: string|null, review: array}
      */
     public function grade(array $questionIds, array $answers): array
@@ -87,48 +86,54 @@ class QuestionService
             ->get()
             ->keyBy('id');
 
-        $score   = 0;
-        $topics  = [];
-        $review  = [];
+        $score = 0;
+        $topics = [];
+        $review = [];
 
         foreach ($questionIds as $i => $qid) {
-            $question    = $questions[$qid] ?? null;
-            if (!$question) continue;
+            $question = $questions[$qid] ?? null;
+            if (! $question) {
+                continue;
+            }
 
-            $submitted   = $answers[$i] ?? null;
-            $correct     = $question->correct_answer;
-            $isCorrect   = $submitted !== null && (int) $submitted === $correct;
-            $topic       = $question->topic;
+            $submitted = $answers[$i] ?? null;
+            $correct = $question->correct_answer;
+            $isCorrect = $submitted !== null && (int) $submitted === $correct;
+            $topic = $question->topic;
 
-            if ($isCorrect) $score++;
+            if ($isCorrect) {
+                $score++;
+            }
 
             // Per-topic accumulation
-            if (!isset($topics[$topic])) {
+            if (! isset($topics[$topic])) {
                 $topics[$topic] = ['correct' => 0, 'total' => 0];
             }
             $topics[$topic]['total']++;
-            if ($isCorrect) $topics[$topic]['correct']++;
+            if ($isCorrect) {
+                $topics[$topic]['correct']++;
+            }
 
             // Per-question review entry (safe — only sent after submission)
             $review[] = [
-                'question_id'    => $qid,
-                'question_text'  => $question->question_text,
-                'options'        => $question->options,
-                'submitted'      => $submitted,
+                'question_id' => $qid,
+                'question_text' => $question->question_text,
+                'options' => $question->options,
+                'submitted' => $submitted,
                 'correct_answer' => $correct,        // revealed only in graded response
-                'is_correct'     => $isCorrect,
-                'explanation'    => $question->explanation,
-                'topic'          => $topic,
+                'is_correct' => $isCorrect,
+                'explanation' => $question->explanation,
+                'topic' => $topic,
             ];
         }
 
-        $total    = count($questionIds);
+        $total = count($questionIds);
         $accuracy = $total > 0 ? (int) round(($score / $total) * 100) : 0;
 
         // Build topic breakdown (matches existing AnalyticsService/SessionService shape)
         $topicBreakdown = [];
-        $weakestAcc     = 101;
-        $weakestTopic   = null;
+        $weakestAcc = 101;
+        $weakestTopic = null;
 
         foreach ($topics as $topic => $stats) {
             $topicAccuracy = $stats['total'] > 0
@@ -138,19 +143,19 @@ class QuestionService
             $label = match (true) {
                 $topicAccuracy >= 70 => 'Strong',
                 $topicAccuracy >= 40 => 'Improving',
-                default             => 'Weak',
+                default => 'Weak',
             };
 
             $topicBreakdown[] = [
-                'topic'    => $topic,
-                'correct'  => $stats['correct'],
-                'total'    => $stats['total'],
+                'topic' => $topic,
+                'correct' => $stats['correct'],
+                'total' => $stats['total'],
                 'accuracy' => $topicAccuracy,
-                'label'    => $label,
+                'label' => $label,
             ];
 
             if ($topicAccuracy < $weakestAcc) {
-                $weakestAcc   = $topicAccuracy;
+                $weakestAcc = $topicAccuracy;
                 $weakestTopic = $topic;
             }
         }

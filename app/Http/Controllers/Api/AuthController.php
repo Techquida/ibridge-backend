@@ -25,18 +25,18 @@ class AuthController extends Controller
         $result = $this->authService->register($request->validated());
 
         return $this->createdResponse([
-            'user'  => new UserResource($result['user']),
+            'user' => new UserResource($result['user']),
             'token' => $result['token'],
         ], 'Registration successful');
     }
 
     public function login(LoginRequest $request): JsonResponse
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (! Auth::attempt($request->only('email', 'password'))) {
             return $this->unauthorizedResponse('Invalid login credentials');
         }
 
-        $user  = User::where('email', $request->email)->firstOrFail();
+        $user = User::where('email', $request->email)->firstOrFail();
 
         // Suspended check
         if ($user->is_suspended) {
@@ -47,7 +47,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return $this->successResponse([
-            'user'  => new UserResource($user),
+            'user' => new UserResource($user),
             'token' => $token,
         ], 'Login successful');
     }

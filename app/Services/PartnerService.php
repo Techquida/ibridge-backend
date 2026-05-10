@@ -13,7 +13,7 @@ class PartnerService
     public function resolvePartnerForUser(User $user): Partner
     {
         return Partner::where('name', $user->name)->firstOr(
-            fn() => throw new ModelNotFoundException('Partner profile not found.')
+            fn () => throw new ModelNotFoundException('Partner profile not found.')
         );
     }
 
@@ -22,7 +22,7 @@ class PartnerService
         $referredUsers = $partner->users()->get();
 
         $activeCount = $referredUsers->filter(
-            fn(User $u) => $this->subscriptionService->isUserActive($u)
+            fn (User $u) => $this->subscriptionService->isUserActive($u)
         )->count();
 
         return [

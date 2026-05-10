@@ -7,7 +7,6 @@ use App\Models\Question;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class SubjectController extends Controller
 {
