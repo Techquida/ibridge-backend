@@ -30,7 +30,15 @@ class SubjectController extends Controller
             $query->where('exam_board', $request->board);
         }
 
-        $subjects = $query->orderBy('subject')->pluck('subject');
+        $availableSubjects = $query->orderBy('subject')->pluck('subject');
+        
+        $user = $request->user();
+        if ($user && $user->department_id) {
+            $departmentSubjects = $user->department->subjects()->pluck('name');
+            $subjects = $availableSubjects->intersect($departmentSubjects)->values();
+        } else {
+            $subjects = $availableSubjects;
+        }
 
         return $this->successResponse($subjects, 'Subjects retrieved successfully');
     }

@@ -25,6 +25,7 @@ class User extends Authenticatable implements FilamentUser
         'account_type',
         'exam_board',
         'school_id',
+        'department_id',
         'referred_by_partner_id',
         'subscription_type',
         'subscription_expiry',
@@ -78,5 +79,10 @@ class User extends Authenticatable implements FilamentUser
     public function aiChats(): HasMany
     {
         return $this->hasMany(AiChat::class);
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

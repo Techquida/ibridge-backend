@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\SubscriptionTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Models\Plan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -57,6 +58,18 @@ class PaystackWebhookController extends Controller
             }
 
             $amountPaid = $data['amount'] ?? 0;
+
+            $planModel = Plan::where('key', $plan)->first();
+            $expectedAmount = $planModel ? $planModel->amount_kobo : 200000;
+
+            if ($amountPaid < $expectedAmount) {
+                Log::warning('Paystack webhook amount mismatch', [
+                    'reference' => $reference,
+                    'paid' => $amountPaid,
+                    'expected' => $expectedAmount
+                ]);
+                return response()->json(['status' => 'error', 'message' => 'amount mismatch'], 400);
+            }
 
             Payment::create([
                 'user_id' => $user->id,

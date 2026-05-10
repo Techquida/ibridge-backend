@@ -28,12 +28,17 @@ class SessionService
         return DB::transaction(function () use ($userId, $data) {
             $mode = $data['mode'];
 
+            // Calculate XP before session creation to save it
+            $multiplier = self::XP_MULTIPLIERS[$mode] ?? 1.0;
+            $xpEarnedRaw = (int) round($data['accuracy'] * $multiplier);
+
             $session = Session::create([
                 'user_id' => $userId,
                 'subject' => $data['subject'],
                 'mode' => SessionModeEnum::from($mode),
                 'score' => $data['score'],
                 'accuracy' => $data['accuracy'],
+                'xp_earned' => $xpEarnedRaw,
                 'time_used' => $data['time_used'],
                 'total_questions' => $data['total_questions'],
                 'exam_board' => $data['exam_board'] ?? null,
@@ -46,7 +51,7 @@ class SessionService
             ]);
 
             // Award XP and update streak
-            $xpEarned = $this->awardXpAndStreak($userId, $data['accuracy'], $mode);
+            $xpEarned = $this->awardXpAndStreak($userId, $xpEarnedRaw);
 
             // Attach virtual fields for GradedSessionResource
             $user = User::find($userId);
@@ -61,15 +66,12 @@ class SessionService
     /**
      * Award XP and manage streak. Returns XP earned.
      */
-    public function awardXpAndStreak(int $userId, float $accuracy, string $mode): int
+    public function awardXpAndStreak(int $userId, int $xpEarned): int
     {
         $user = User::lockForUpdate()->find($userId);
         if (! $user) {
             return 0;
         }
-
-        $multiplier = self::XP_MULTIPLIERS[$mode] ?? 1.0;
-        $xpEarned = (int) round($accuracy * $multiplier);
 
         $today = Carbon::today()->toDateString();
         $lastActivity = $user->last_activity_date;

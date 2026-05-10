@@ -15,6 +15,11 @@ class QuestionSeeder extends Seeder
         $this->seedMathematics();
         $this->seedEnglish();
         $this->seedBiology();
+        $this->seedPhysics();
+        $this->seedChemistry();
+        $this->seedEconomics();
+        $this->seedGovernment();
+        $this->seedLiterature();
     }
 
     /**
@@ -708,6 +713,181 @@ class QuestionSeeder extends Seeder
                 'correct_answer' => 0,
                 'explanation' => 'The cerebellum controls balance, coordination, and fine motor control.',
                 'difficulty' => 'medium',
+            ],
+        ];
+
+        foreach ($questions as $q) {
+            Question::create($this->shuffleOptions($q));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PHYSICS
+    // ─────────────────────────────────────────────────────────────────────────
+    private function seedPhysics(): void
+    {
+        $questions = [
+            [
+                'exam_board' => 'WAEC',
+                'subject' => 'Physics',
+                'topic' => 'Mechanics',
+                'year' => 2022,
+                'question_text' => 'Which of the following is a vector quantity?',
+                'options' => ['Velocity', 'Speed', 'Mass', 'Temperature'],
+                'correct_answer' => 0,
+                'explanation' => 'Velocity has both magnitude and direction, making it a vector quantity.',
+                'difficulty' => 'easy',
+            ],
+            [
+                'exam_board' => 'JAMB',
+                'subject' => 'Physics',
+                'topic' => 'Mechanics',
+                'year' => 2023,
+                'question_text' => 'A car accelerates from rest to 20 m/s in 5 seconds. Find its acceleration.',
+                'options' => ['4 m/s²', '100 m/s²', '15 m/s²', '25 m/s²'],
+                'correct_answer' => 0,
+                'explanation' => 'Acceleration = (Change in velocity) / time = (20 - 0) / 5 = 4 m/s².',
+                'difficulty' => 'easy',
+            ],
+            [
+                'exam_board' => 'WAEC',
+                'subject' => 'Physics',
+                'topic' => 'Waves',
+                'year' => 2021,
+                'question_text' => 'The distance between two successive crests of a wave is called:',
+                'options' => ['Wavelength', 'Amplitude', 'Frequency', 'Period'],
+                'correct_answer' => 0,
+                'explanation' => 'Wavelength is the distance between consecutive corresponding points of the same phase, such as crests.',
+                'difficulty' => 'easy',
+            ],
+        ];
+
+        foreach ($questions as $q) {
+            Question::create($this->shuffleOptions($q));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // CHEMISTRY
+    // ─────────────────────────────────────────────────────────────────────────
+    private function seedChemistry(): void
+    {
+        $questions = [
+            [
+                'exam_board' => 'WAEC',
+                'subject' => 'Chemistry',
+                'topic' => 'Atomic Structure',
+                'year' => 2022,
+                'question_text' => 'Which subatomic particle has a negative charge?',
+                'options' => ['Electron', 'Proton', 'Neutron', 'Nucleus'],
+                'correct_answer' => 0,
+                'explanation' => 'Electrons are negatively charged, protons are positive, and neutrons are neutral.',
+                'difficulty' => 'easy',
+            ],
+            [
+                'exam_board' => 'JAMB',
+                'subject' => 'Chemistry',
+                'topic' => 'Chemical Bonding',
+                'year' => 2023,
+                'question_text' => 'An ionic bond is formed by:',
+                'options' => ['Transfer of electrons', 'Sharing of electrons', 'Sea of electrons', 'Van der Waals forces'],
+                'correct_answer' => 0,
+                'explanation' => 'Ionic bonds involve the transfer of electrons from a metal to a non-metal.',
+                'difficulty' => 'easy',
+            ],
+        ];
+
+        foreach ($questions as $q) {
+            Question::create($this->shuffleOptions($q));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ECONOMICS
+    // ─────────────────────────────────────────────────────────────────────────
+    private function seedEconomics(): void
+    {
+        $questions = [
+            [
+                'exam_board' => 'WAEC',
+                'subject' => 'Economics',
+                'topic' => 'Basic Concepts',
+                'year' => 2022,
+                'question_text' => 'Opportunity cost is defined as:',
+                'options' => ['The alternative forgone', 'The monetary cost of a good', 'The total cost of production', 'The implicit cost'],
+                'correct_answer' => 0,
+                'explanation' => 'Opportunity cost represents the next best alternative forgone when making a choice.',
+                'difficulty' => 'easy',
+            ],
+            [
+                'exam_board' => 'JAMB',
+                'subject' => 'Economics',
+                'topic' => 'Demand and Supply',
+                'year' => 2021,
+                'question_text' => 'The law of demand states that:',
+                'options' => ['As price increases, quantity demanded decreases', 'As price increases, quantity demanded increases', 'Price and quantity demanded are directly proportional', 'Demand creates its own supply'],
+                'correct_answer' => 0,
+                'explanation' => 'The law of demand dictates an inverse relationship between price and quantity demanded.',
+                'difficulty' => 'medium',
+            ],
+        ];
+
+        foreach ($questions as $q) {
+            Question::create($this->shuffleOptions($q));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // GOVERNMENT
+    // ─────────────────────────────────────────────────────────────────────────
+    private function seedGovernment(): void
+    {
+        $questions = [
+            [
+                'exam_board' => 'WAEC',
+                'subject' => 'Government',
+                'topic' => 'Basic Concepts',
+                'year' => 2020,
+                'question_text' => 'A system of government where power is vested in a single individual is called:',
+                'options' => ['Autocracy', 'Democracy', 'Oligarchy', 'Theocracy'],
+                'correct_answer' => 0,
+                'explanation' => 'Autocracy is a system of government by one person with absolute power.',
+                'difficulty' => 'easy',
+            ],
+            [
+                'exam_board' => 'JAMB',
+                'subject' => 'Government',
+                'topic' => 'Constitution',
+                'year' => 2022,
+                'question_text' => 'The fundamental laws and principles that govern a state are contained in the:',
+                'options' => ['Constitution', 'Manifesto', 'Decree', 'Hansard'],
+                'correct_answer' => 0,
+                'explanation' => 'A constitution is the aggregate of fundamental principles or established precedents that constitute the legal basis of a polity.',
+                'difficulty' => 'easy',
+            ],
+        ];
+
+        foreach ($questions as $q) {
+            Question::create($this->shuffleOptions($q));
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // LITERATURE
+    // ─────────────────────────────────────────────────────────────────────────
+    private function seedLiterature(): void
+    {
+        $questions = [
+            [
+                'exam_board' => 'WAEC',
+                'subject' => 'Literature',
+                'topic' => 'Literary Appreciation',
+                'year' => 2021,
+                'question_text' => 'A literary work that ends unhappily, often with the downfall of the main character, is a:',
+                'options' => ['Tragedy', 'Comedy', 'Farce', 'Satire'],
+                'correct_answer' => 0,
+                'explanation' => 'A tragedy is a genre of drama based on human suffering and, mainly, the terrible or sorrowful events that befall a main character.',
+                'difficulty' => 'easy',
             ],
         ];
 

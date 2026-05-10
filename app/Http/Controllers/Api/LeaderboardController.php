@@ -18,23 +18,23 @@ class LeaderboardController extends Controller
     public function index(Request $request): JsonResponse
     {
         $authUser = $request->user();
+        $timeframe = $request->input('timeframe', 'weekly');
+        $board = $request->input('board');
 
-        $query = User::where('role', RoleEnum::STUDENT->value)
-            ->where('is_suspended', false)
-            ->orderBy('xp', 'desc');
+        $query = $this->buildBaseQuery($timeframe);
 
         // Optional filter by exam board
-        if ($request->filled('board') && in_array($request->board, ['WAEC', 'JAMB'])) {
-            $query->where('exam_board', $request->board);
+        if ($board && in_array($board, ['WAEC', 'JAMB'])) {
+            $query->where('users.exam_board', $board);
         }
 
-        $top = $query->take(self::TOP_N)->get(['id', 'name', 'xp', 'streak_days', 'exam_board']);
+        $top = $query->take(self::TOP_N)->get();
 
         $entries = $top->map(function ($user, $index) use ($authUser) {
             return [
                 'rank' => $index + 1,
                 'name' => $this->maskName($user->name),
-                'xp' => $user->xp,
+                'xp' => (int) $user->xp,
                 'streak' => $user->streak_days,
                 'exam_board' => $user->exam_board,
                 'is_me' => $user->id === $authUser->id,
@@ -46,20 +46,52 @@ class LeaderboardController extends Controller
         $myRank = null;
 
         if (! $userInTop) {
-            $myRank = [
-                'rank' => $this->getUserRank($authUser, $request->board ?? null),
-                'name' => $this->maskName($authUser->name),
-                'xp' => $authUser->xp,
-                'streak' => $authUser->streak_days,
-                'exam_board' => $authUser->exam_board,
-                'is_me' => true,
-            ];
+            $myAuthUserRow = $this->buildBaseQuery($timeframe)
+                ->where('users.id', $authUser->id)
+                ->first();
+
+            $myAuthXp = $myAuthUserRow ? (int) $myAuthUserRow->xp : 0;
+
+            if ($timeframe === 'alltime' || $myAuthXp > 0) {
+                $myRank = [
+                    'rank' => $this->getUserRank($myAuthXp, $timeframe, $board),
+                    'name' => $this->maskName($authUser->name),
+                    'xp' => $myAuthXp,
+                    'streak' => $authUser->streak_days,
+                    'exam_board' => $authUser->exam_board,
+                    'is_me' => true,
+                ];
+            }
         }
 
         return $this->successResponse([
             'entries' => $entries,
             'my_rank' => $myRank,
         ], 'Leaderboard retrieved successfully');
+    }
+
+    private function buildBaseQuery(string $timeframe)
+    {
+        $query = User::query()
+            ->where('users.role', RoleEnum::STUDENT->value)
+            ->where('users.is_suspended', false);
+
+        if ($timeframe === 'weekly') {
+            $startOfWeek = \Illuminate\Support\Carbon::now()->startOfWeek();
+            $query->select('users.id', 'users.name', 'users.streak_days', 'users.exam_board', \Illuminate\Support\Facades\DB::raw('COALESCE(SUM(exam_sessions.xp_earned), 0) as xp'))
+                ->join('exam_sessions', function ($join) use ($startOfWeek) {
+                    $join->on('users.id', '=', 'exam_sessions.user_id')
+                         ->where('exam_sessions.created_at', '>=', $startOfWeek);
+                })
+                ->groupBy('users.id', 'users.name', 'users.streak_days', 'users.exam_board')
+                ->having('xp', '>', 0)
+                ->orderBy('xp', 'desc');
+        } else {
+            $query->select('users.id', 'users.name', 'users.streak_days', 'users.exam_board', 'users.xp')
+                ->orderBy('users.xp', 'desc');
+        }
+
+        return $query;
     }
 
     private function maskName(string $name): string
@@ -73,16 +105,23 @@ class LeaderboardController extends Controller
         return $parts[0].' '.strtoupper(substr($lastName, 0, 1)).'.';
     }
 
-    private function getUserRank(User $user, ?string $board): int
+    private function getUserRank(int $userXp, string $timeframe, ?string $board): int
     {
-        $query = User::where('role', RoleEnum::STUDENT->value)
-            ->where('is_suspended', false)
-            ->where('xp', '>', $user->xp);
+        $query = $this->buildBaseQuery($timeframe);
 
         if ($board && in_array($board, ['WAEC', 'JAMB'])) {
-            $query->where('exam_board', $board);
+            $query->where('users.exam_board', $board);
         }
 
-        return $query->count() + 1;
+        // We can just use a subquery to count how many users have strictly greater XP
+        $sql = $query->toSql();
+        $bindings = $query->getBindings();
+
+        $count = \Illuminate\Support\Facades\DB::table(\Illuminate\Support\Facades\DB::raw("({$sql}) as sub"))
+            ->mergeBindings($query->getQuery())
+            ->where('xp', '>', $userXp)
+            ->count();
+
+        return $count + 1;
     }
 }

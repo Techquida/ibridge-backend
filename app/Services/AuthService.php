@@ -59,6 +59,7 @@ class AuthService
         $user->fill(array_filter([
             'name' => $data['name'] ?? null,
             'exam_board' => $data['exam_board'] ?? null,
+            'department_id' => $data['department_id'] ?? null,
         ], fn ($v) => $v !== null));
 
         $user->save();

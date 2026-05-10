@@ -54,7 +54,7 @@ class AuthController extends Controller
 
     public function profile(Request $request): JsonResponse
     {
-        return $this->successResponse(new UserResource($request->user()->load('school')));
+        return $this->successResponse(new UserResource($request->user()->load(['school', 'department'])));
     }
 
     public function updateProfile(UpdateProfileRequest $request): JsonResponse

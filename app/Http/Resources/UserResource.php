@@ -26,6 +26,11 @@ class UserResource extends JsonResource
             'subscription_type' => $this->subscription_type?->value ?? $this->subscription_type,
             'subscription_expiry' => $this->subscription_expiry?->toISOString(),
             'school_id' => $this->school_id,
+            'department_id' => $this->department_id,
+            'department' => $this->whenLoaded('department', fn () => [
+                'id' => $this->department?->id,
+                'name' => $this->department?->name,
+            ]),
             'referred_by_partner_id' => $this->referred_by_partner_id,
             'is_suspended' => (bool) $this->is_suspended,
             'is_active' => $isActive,

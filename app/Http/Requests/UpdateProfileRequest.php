@@ -16,6 +16,7 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => ['sometimes', 'string', 'max:255'],
             'exam_board' => ['sometimes', 'string', 'in:WAEC,JAMB'],
+            'department_id' => ['sometimes', 'nullable', 'exists:departments,id'],
         ];
     }
 }

@@ -16,6 +16,7 @@ class Session extends Model
         'mode',
         'score',
         'accuracy',
+        'xp_earned',
         'time_used',
         'total_questions',
         'exam_board',
