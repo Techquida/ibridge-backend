@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table) {
+        Schema::create('ai_chat_messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('reference')->unique();
-            $table->string('plan');
-            $table->integer('amount_kobo');
-            $table->string('status');
-            $table->json('paystack_response')->nullable();
+            $table->foreignId('ai_chat_id')->constrained()->cascadeOnDelete();
+            $table->string('role'); // 'user' or 'model'
+            $table->text('content');
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payments');
+        Schema::dropIfExists('ai_chat_messages');
     }
 };

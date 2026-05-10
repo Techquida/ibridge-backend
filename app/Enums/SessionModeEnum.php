@@ -6,7 +6,7 @@ enum SessionModeEnum: string
 {
     case LIGHT = 'light';
     case DEEP = 'deep';
-    case REAL_EXAM = 'real_exam';
+    case REAL_EXAM = 'real';
 
     public static function toArray(): array
     {

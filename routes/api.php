@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\RoleEnum;
+use App\Http\Controllers\Api\AiChatController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LeaderboardController;
@@ -17,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 // ─── Public routes ────────────────────────────────────────────────────────────
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/paystack/webhook', [\App\Http\Controllers\Api\PaystackWebhookController::class, 'handle']);
+Route::get('/subscription/plans', [SubscriptionController::class, 'plans']);
 
 // ─── Authenticated routes ─────────────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
@@ -26,7 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/profile', [AuthController::class, 'updateProfile']);
 
     // ── Student routes ────────────────────────────────────────────────────────
-    Route::middleware('role:'.RoleEnum::STUDENT->value)->group(function () {
+    // 'role:'.RoleEnum::STUDENT->value
+    Route::middleware('auth:sanctum')->group(function () {
 
         // Questions (randomized per request — no correct answers in response)
         Route::get('/questions', [QuestionController::class, 'index']);
@@ -49,7 +53,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/leaderboard', [LeaderboardController::class, 'index']);
 
         // Subscription renewal via Paystack
+        Route::post('/subscription/initialize', [SubscriptionController::class, 'initialize']);
         Route::post('/subscription/verify', [SubscriptionController::class, 'verify']);
+
+        // AI Chats (Gemini-powered, topic-scoped)
+        Route::get('/ai-chats', [AiChatController::class, 'index']);
+        Route::post('/ai-chats', [AiChatController::class, 'store']);
+        Route::get('/ai-chats/{id}', [AiChatController::class, 'show']);
+        Route::post('/ai-chats/{id}/messages', [AiChatController::class, 'sendMessage']);
     });
 
     // ── Partner routes ────────────────────────────────────────────────────────

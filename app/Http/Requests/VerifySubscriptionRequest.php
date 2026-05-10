@@ -15,7 +15,7 @@ class VerifySubscriptionRequest extends FormRequest
     {
         return [
             'reference' => ['required', 'string'],
-            'plan' => ['required', 'string', 'in:monthly,annual'],
+            'plan' => ['required', 'string', 'in:monthly,term,annual'],
         ];
     }
 
@@ -23,7 +23,7 @@ class VerifySubscriptionRequest extends FormRequest
     {
         return [
             'reference.required' => 'A Paystack payment reference is required.',
-            'plan.in' => 'Plan must be monthly or annual.',
+            'plan.in' => 'Plan must be monthly, term, or annual.',
         ];
     }
 }

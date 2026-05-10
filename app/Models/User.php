@@ -23,11 +23,17 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'account_type',
+        'exam_board',
         'school_id',
         'referred_by_partner_id',
         'subscription_type',
         'subscription_expiry',
         'is_suspended',
+        // Gamification fields
+        'xp',
+        'streak_days',
+        'best_streak',
+        'last_activity_date',
     ];
 
     protected $hidden = [
@@ -42,7 +48,11 @@ class User extends Authenticatable implements FilamentUser
         'account_type' => AccountTypeEnum::class,
         'subscription_type' => SubscriptionTypeEnum::class,
         'subscription_expiry' => 'datetime',
+        'last_activity_date' => 'date',
         'is_suspended' => 'boolean',
+        'xp' => 'integer',
+        'streak_days' => 'integer',
+        'best_streak' => 'integer',
     ];
 
     public function canAccessPanel(Panel $panel): bool
@@ -63,5 +73,10 @@ class User extends Authenticatable implements FilamentUser
     public function sessions(): HasMany
     {
         return $this->hasMany(Session::class);
+    }
+
+    public function aiChats(): HasMany
+    {
+        return $this->hasMany(AiChat::class);
     }
 }

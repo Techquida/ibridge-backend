@@ -33,7 +33,7 @@ class QuestionService
      * `RANDOM()` (SQLite) or `RAND()` (MySQL) is applied at the DB level,
      * so even concurrent requests for the same subject/board produce different sets.
      */
-    public function getQuestions(string $subject, string $examBoard, string $mode): Collection
+    public function getQuestions(string $subject, string $examBoard, string $mode, ?string $topic = null): Collection
     {
         $total = self::MODE_COUNTS[$mode] ?? 20;
         $split = self::DIFFICULTY_SPLIT[$mode] ?? self::DIFFICULTY_SPLIT['light'];
@@ -46,6 +46,7 @@ class QuestionService
                 ->active()
                 ->forSubject($subject)
                 ->forBoard($examBoard)
+                ->when($topic, fn ($q) => $q->forTopic($topic))
                 ->forDifficulty($difficulty)
                 ->inRandomOrder()          // DB-level randomization — unique per request
                 ->limit($count)
@@ -61,6 +62,7 @@ class QuestionService
                 ->active()
                 ->forSubject($subject)
                 ->forBoard($examBoard)
+                ->when($topic, fn ($q) => $q->forTopic($topic))
                 ->whereNotIn('id', $existing)
                 ->inRandomOrder()
                 ->limit($total - $results->count())

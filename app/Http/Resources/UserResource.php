@@ -28,6 +28,7 @@ class UserResource extends JsonResource
             'school_id' => $this->school_id,
             'referred_by_partner_id' => $this->referred_by_partner_id,
             'is_suspended' => (bool) $this->is_suspended,
+            'is_active' => $isActive,
             // Gamification
             'xp' => (int) $this->xp,
             'streak_days' => (int) $this->streak_days,

@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table) {
+        Schema::create('plans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('reference')->unique();
-            $table->string('plan');
+            $table->string('key')->unique();
+            $table->string('label');
+            $table->string('price_display');
+            $table->string('period_display');
             $table->integer('amount_kobo');
-            $table->string('status');
-            $table->json('paystack_response')->nullable();
+            $table->boolean('is_popular')->default(false);
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payments');
+        Schema::dropIfExists('plans');
     }
 };

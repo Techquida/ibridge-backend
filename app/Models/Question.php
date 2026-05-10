@@ -47,4 +47,9 @@ class Question extends Model
     {
         return $query->where('difficulty', $difficulty);
     }
+
+    public function scopeForTopic(Builder $query, string $topic): Builder
+    {
+        return $query->where('topic', $topic);
+    }
 }

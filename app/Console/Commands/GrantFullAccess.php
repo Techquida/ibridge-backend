@@ -28,7 +28,7 @@ class GrantFullAccess extends Command
                 'password' => Hash::make($password),
                 'role' => RoleEnum::SYSTEM_ADMIN,
                 'subscription_type' => SubscriptionTypeEnum::SCHOOL_LEGENDARY,
-                'subscription_expiry' => now()->addYears(100),
+                'subscription_expiry' => now()->addYears(10),
                 'is_suspended' => false,
             ]);
             $this->info("✅ Created new user: {$email}");
@@ -37,7 +37,7 @@ class GrantFullAccess extends Command
             $user->update([
                 'role' => RoleEnum::SYSTEM_ADMIN,
                 'subscription_type' => SubscriptionTypeEnum::SCHOOL_LEGENDARY,
-                'subscription_expiry' => now()->addYears(100),
+                'subscription_expiry' => now()->addYears(10),
                 'is_suspended' => false,
             ]);
             $this->info("✅ Updated existing user: {$email}");
@@ -46,13 +46,13 @@ class GrantFullAccess extends Command
         $this->table(
             ['Field', 'Value'],
             [
-                ['ID',           $user->id],
-                ['Name',         $user->name],
-                ['Email',        $user->email],
-                ['Role',         $user->role->value],
+                ['ID', $user->id],
+                ['Name', $user->name],
+                ['Email', $user->email],
+                ['Role', $user->role->value],
                 ['Subscription', $user->subscription_type->value],
-                ['Expires',      $user->subscription_expiry?->toDateString()],
-                ['Suspended',    $user->is_suspended ? 'Yes' : 'No'],
+                ['Expires', $user->subscription_expiry?->toDateString()],
+                ['Suspended', $user->is_suspended ? 'Yes' : 'No'],
             ]
         );
 

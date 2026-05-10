@@ -23,5 +23,9 @@ class DatabaseSeeder extends Seeder
         //     'role'         => 'system_admin',
         //     'account_type' => 'individual',
         // ]);
+
+        $this->call([
+            PlanSeeder::class,
+        ]);
     }
 }

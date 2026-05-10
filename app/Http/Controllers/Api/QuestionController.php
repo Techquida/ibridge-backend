@@ -43,6 +43,7 @@ class QuestionController extends Controller
             'subject' => ['required', 'string'],
             'board' => ['required', 'string', 'in:WAEC,JAMB'],
             'mode' => ['required', 'string', 'in:light,deep,real'],
+            'topic' => ['nullable', 'string'],
         ]);
 
         if (! $this->subscriptionService->isUserActive($request->user())) {
@@ -53,6 +54,7 @@ class QuestionController extends Controller
             $request->subject,
             $request->board,
             $request->mode,
+            $request->topic
         );
 
         return $this->successResponse(
