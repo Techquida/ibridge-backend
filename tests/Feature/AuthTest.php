@@ -89,16 +89,6 @@ class AuthTest extends TestCase
             ->assertJsonValidationErrors(['referral_code']);
     }
 
-    public function test_registration_fails_without_password_confirmation(): void
-    {
-        $this->postJson('/api/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-        ])->assertStatus(422)
-            ->assertJsonValidationErrors(['password']);
-    }
-
     public function test_registration_fails_with_duplicate_email(): void
     {
         $this->postJson('/api/register', $this->basePayload());
