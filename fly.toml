@@ -19,6 +19,10 @@ console_command = 'php /var/www/html/artisan tinker'
   LOG_STDERR_FORMATTER = 'Monolog\Formatter\JsonFormatter'
   SESSION_DRIVER = 'cookie'
   SESSION_SECURE_COOKIE = 'true'
+  DB_CONNECTION = 'pgsql'
+
+[deploy]
+  release_command = 'php artisan migrate --force'
 
 [http_service]
   internal_port = 8080
