@@ -28,6 +28,10 @@ class DatabaseSeeder extends Seeder
             PlanSeeder::class,
             DepartmentSubjectSeeder::class,
             QuestionSeeder::class,
+            BiologySeeder::class,
+            ChemistrySeeder::class,
+            MathematicsSeeder::class,
+            EnglishSeeder::class,
         ]);
     }
 }
