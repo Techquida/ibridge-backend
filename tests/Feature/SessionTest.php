@@ -48,8 +48,8 @@ class SessionTest extends TestCase
 
         $this->actingAs($user)->postJson('/api/sessions', $this->sessionPayload())
             ->assertStatus(201)
-            ->assertJsonPath('data.subject', 'Mathematics')
-            ->assertJsonStructure(['data' => ['id', 'subject', 'mode', 'score', 'accuracy', 'time_used']]);
+            ->assertJsonPath('data.score', 0)
+            ->assertJsonStructure(['data' => ['session_id', 'score', 'total_questions', 'accuracy', 'time_used', 'xp_earned', 'level', 'streak_days', 'weakest_topic', 'topic_breakdown', 'review']]);
 
         $this->assertDatabaseHas('exam_sessions', ['user_id' => $user->id, 'subject' => 'Mathematics']);
     }
